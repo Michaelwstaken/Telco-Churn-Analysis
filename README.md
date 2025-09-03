@@ -92,6 +92,6 @@ Page 3
 ---
 
   View
-- **PBIX file**: 
+- **PBIX file**: PowerBI/Telco Dash.pbix
 - **Live Power BI link** https://app.powerbi.com/links/eVZd7FxkO1?ctid=ae9579e4-bb8d-4db0-9b44-127a32feaa7e&pbi_source=linkShare&bookmarkGuid=c5ca50c0-7a98-468b-89ad-60c38e4f14a2
 
