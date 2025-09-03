@@ -93,5 +93,5 @@ Page 3
 
   View
 - **PBIX file**: [PowerBI/Telco Dash.pbix](https://github.com/Michaelwstaken/Telco-Churn-Analysis/blob/eec46edf25b06fa659d97676cc439de352a4d968/PowerBI/Telco%20Dash.pbix)
-- **Live Power BI link** https://app.powerbi.com/links/eVZd7FxkO1?ctid=ae9579e4-bb8d-4db0-9b44-127a32feaa7e&pbi_source=linkShare&bookmarkGuid=c5ca50c0-7a98-468b-89ad-60c38e4f14a2
+- **Live Power BI link** [https://app.powerbi.com/links/eVZd7FxkO1?ctid=ae9579e4-bb8d-4db0-9b44-127a32feaa7e&pbi_source=linkShare&bookmarkGuid=c5ca50c0-7a98-468b-89ad-60c38e4f14a2](https://sjccedu-my.sharepoint.com/:u:/g/personal/22sjccb147_sjccedu_onmicrosoft_com/EYu6UprsoX1Lrg0W-_xICz0BE8_kiLUVtegl7XlqtWR62A?e=SaPw3h)
 
