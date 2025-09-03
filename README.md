@@ -77,12 +77,20 @@ Key Insights
 ---
 
  Dashboard Preview
+ Page 1
+<img width="1551" height="872" alt="Screenshot 2025-09-03 142844" src="https://github.com/user-attachments/assets/d7955e71-1cbb-483d-af5e-d83841564fad" />
+
+Page 2
+<img width="1556" height="867" alt="Screenshot 2025-09-03 142916" src="https://github.com/user-attachments/assets/9a5d2bfd-d1dc-4744-acb0-84d37379066c" />
+
+Page 3
+<img width="1875" height="1055" alt="Screenshot 2025-09-03 143004" src="https://github.com/user-attachments/assets/a3019713-d83b-41fe-9c13-55b3c272f723" />
+
 
 
 ---
 
- How to View
-- **PBIX file**: [Download here](powerbi/telco_churn.pbix) *(requires Power BI Desktop)*
-- **PDF export**: [View here](powerbi/telco_churn.pdf)
-- **Live Power BI link** *(if published)*: [View Online](#)
+  View
+- **PBIX file**: 
+- **Live Power BI link** https://app.powerbi.com/links/eVZd7FxkO1?ctid=ae9579e4-bb8d-4db0-9b44-127a32feaa7e&pbi_source=linkShare&bookmarkGuid=c5ca50c0-7a98-468b-89ad-60c38e4f14a2
 
