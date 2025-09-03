@@ -1,0 +1,95 @@
+**SQL code:**
+```sql
+CREATE DATABASE telco_churn;
+USE telco_churn;
+
+CREATE TABLE customers (
+    customerID VARCHAR(20) PRIMARY KEY,
+    gender VARCHAR(10),
+    SeniorCitizen TINYINT(1),
+    Partner VARCHAR(3),
+    Dependents VARCHAR(3),
+    tenure INT,
+    PhoneService VARCHAR(3),
+    MultipleLines VARCHAR(30),
+    InternetService VARCHAR(30),
+    OnlineSecurity VARCHAR(30),
+    OnlineBackup VARCHAR(30),
+    DeviceProtection VARCHAR(30),
+    TechSupport VARCHAR(30),
+    StreamingTV VARCHAR(30),
+    StreamingMovies VARCHAR(30),
+    Contract VARCHAR(30),
+    PaperlessBilling VARCHAR(3),
+    PaymentMethod VARCHAR(50),
+    MonthlyCharges DECIMAL(10,2),
+    TotalCharges DECIMAL(10,2),
+    Churn VARCHAR(3)
+);
+
+**-- Check for missing TotalCharges**
+SELECT customerID, TotalCharges
+FROM customers
+WHERE TotalCharges IS NULL;
+
+**-- Add churn flag**
+ALTER TABLE customers ADD churn_flag TINYINT(1);
+UPDATE customers
+SET churn_flag = CASE WHEN Churn = 'Yes' THEN 1 ELSE 0 END;
+
+**-- Overall churn rate**
+SELECT 
+    ROUND(100 * SUM(churn_flag) / COUNT(*), 2) AS churn_rate_percent
+FROM customers;
+
+**-- Churn by contract type**
+SELECT 
+    Contract,
+    COUNT(*) AS total_customers,
+    SUM(churn_flag) AS total_churn,
+    ROUND(100 * SUM(churn_flag) / COUNT(*), 2) AS churn_rate_percent
+FROM customers
+GROUP BY Contract
+ORDER BY churn_rate_percent DESC;
+
+**-- Average monthly charges by churn flag**
+SELECT 
+    churn_flag,
+    ROUND(AVG(MonthlyCharges), 2) AS avg_monthly_charges
+FROM customers
+GROUP BY churn_flag;
+
+**-- View for model input**
+CREATE VIEW churn_model_data AS
+SELECT 
+    customerID,
+    gender,
+    SeniorCitizen,
+    Partner,
+    Dependents,
+    tenure,
+    PhoneService,
+    MultipleLines,
+    InternetService,
+    OnlineSecurity,
+    OnlineBackup,
+    DeviceProtection,
+    TechSupport,
+    StreamingTV,
+    StreamingMovies,
+    Contract,
+    PaperlessBilling,
+    PaymentMethod,
+    MonthlyCharges,
+    TotalCharges,
+    churn_flag
+FROM customers;
+
+**--Python created table (churn_predictions)**
+ALTER TABLE churn_predictions ADD COLUMN risk_bucket VARCHAR(10);
+churn_predictions UPDATE churn_predictions
+SET risk_bucket = CASE
+    WHEN predicted_probability > 0.6 THEN 'High'
+    WHEN predicted_probability >= 0.3 THEN 'Medium'
+    ELSE 'Low'
+END;
