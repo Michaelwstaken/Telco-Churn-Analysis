@@ -1,0 +1,149 @@
+!pip install pandas mysql-connector-python scikit-learn
+
+# pip install pandas scikit-learn mysql-connector-python
+
+import pandas as pd
+import mysql.connector
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, roc_auc_score
+
+# -----------------------------
+# 1. Load dataset
+# -----------------------------
+# Change this path to your actual CSV location
+df = pd.read_csv(r"C:\Users\mitch\Downloads\Telco Project.csv")
+
+# Convert TotalCharges to numeric and drop rows with missing values
+df["TotalCharges"] = pd.to_numeric(df["TotalCharges"], errors="coerce")
+df = df.dropna(subset=["TotalCharges"])
+
+# Create binary target from churn_flag
+if df["churn_flag"].dtype != "int64" and df["churn_flag"].dtype != "float64":
+    df["ChurnFlag"] = df["churn_flag"].map({"Yes": 1, "No": 0})
+else:
+    df["ChurnFlag"] = df["churn_flag"]
+
+# Drop original churn_flag column
+df = df.drop(columns=["churn_flag"])
+
+# Separate features and target
+X = df.drop(columns=["ChurnFlag"])
+y = df["ChurnFlag"]
+
+# Identify categorical and numeric columns
+cat_cols = X.select_dtypes(include=["object"]).columns.tolist()
+num_cols = X.select_dtypes(exclude=["object"]).columns.tolist()
+
+# -----------------------------
+# 2. Preprocessing & Model
+# -----------------------------
+numeric_transformer = Pipeline(steps=[
+    ("imputer", SimpleImputer(strategy="median"))
+])
+categorical_transformer = Pipeline(steps=[
+    ("imputer", SimpleImputer(strategy="most_frequent")),
+    ("onehot", OneHotEncoder(handle_unknown="ignore"))
+])
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("num", numeric_transformer, num_cols),
+        ("cat", categorical_transformer, cat_cols)
+    ]
+)
+rf_model = Pipeline(steps=[
+    ("preprocessor", preprocessor),
+    ("classifier", RandomForestClassifier(
+        n_estimators=300,
+        random_state=42,
+        class_weight="balanced"
+    ))
+])
+
+
+# Train/test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, stratify=y, random_state=42
+)
+
+# Keep customerID for later join
+X_test_with_id = X_test.copy()
+X_test_with_id["customerID"] = df.loc[X_test.index, "customerID"]
+
+# Fit model
+rf_model.fit(X_train, y_train)
+
+# Predictions & probabilities
+y_pred = rf_model.predict(X_test)
+y_proba = rf_model.predict_proba(X_test)[:, 1]
+
+print("ROC AUC:", roc_auc_score(y_test, y_proba))
+print(classification_report(y_test, y_pred))
+
+# -----------------------------
+# 3. Feature Importance
+# -----------------------------
+ohe = rf_model.named_steps["preprocessor"].named_transformers_["cat"].named_steps["onehot"]
+ohe_features = ohe.get_feature_names_out(cat_cols)
+all_features = num_cols + list(ohe_features)
+
+importances = rf_model.named_steps["classifier"].feature_importances_
+feat_imp = pd.DataFrame({
+    "feature": all_features,
+    "importance": importances
+}).sort_values(by="importance", ascending=False)
+
+print("\nTop 10 Features by Importance:")
+print(feat_imp.head(10))
+
+# -----------------------------
+# 4. Save predictions to MySQL
+# -----------------------------
+# Replace with your DB credentials
+conn = mysql.connector.connect(
+    host="localhost",        # or your DB server IP
+    user="root",             # your MySQL username
+    password="",              # your MySQL password
+    database="telco_churn"    # your database name
+)
+cursor = conn.cursor()
+
+# Create table if not exists
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS churn_predictions (
+    customerID VARCHAR(50) PRIMARY KEY,
+    actual_churn INT,
+    predicted_probability FLOAT
+)
+""")
+
+
+# Insert predictions
+results = X_test_with_id.copy()
+results["ActualChurn"] = y_test
+results["PredictedProba"] = y_proba
+results.reset_index(inplace=True)
+
+for _, row in results.iterrows():
+        cursor.execute("""
+        REPLACE INTO churn_predictions (customerID, actual_churn, predicted_probability)
+        VALUES (%s, %s, %s)
+    """, (row["customerID"], int(row["ActualChurn"]), float(row["PredictedProba"])))
+
+conn.commit()
+cursor.close()
+conn.close()
+
+# Save predictions to CSV
+results.to_csv(r"C:file/path", index=False)
+print("Predictions saved to CSV.")
+
+# Save feature importance to CSV
+feat_imp.to_csv(r"C:file/path", index=False)
+print("Feature importance saved to CSV.")
+
+print("Predictions written to MySQL for Power BI.")
