@@ -1,9 +1,10 @@
 # Telco-Churn-Analysis
-"Churn prediction and business insights project using SQL, Python,Power BI and GenAI
+Churn prediction and business insights project using SQL, Python,Power BI and GenAI
 
-Summary
-This project tackles the challenge of **customer churn** for a fictional telecom provider.  
-Using **SQL** for querying and EDA, **Python** for data prep and predictive modeling, and **Power BI** for interactive storytelling while leveraging **GenAi** , it delivers:
+**Summary**
+
+ This project tackles the challenge of **customer churn** for a fictional telecom provider.  
+ Using **SQL** for querying and EDA, **Python** for data prep and predictive modeling, and **Power BI** for interactive storytelling while leveraging **GenAi** , it delivers:
 - **Predictive churn scores** for every customer
 - **Actionable insights** into churn drivers
 
